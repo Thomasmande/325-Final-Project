@@ -14,10 +14,29 @@ knitr::opts_chunk$set(echo = TRUE)
 #install.packages('haven')
 library(haven)
 sesame <- read_dta("sesame.dta")
+library(tidyverse)
 ```
 
 ```{r}
 head(sesame)
+```
+```{r}
+sesame %>%
+  group_by(site) %>%
+  count()
+```
+
+
+```{r}
+sesame %>%
+  group_by(site) %>%
+  count(encour)
+```
+
+```{r}
+sesame %>%
+  group_by(viewcat) %>%
+  count(encour)
 ```
 
 
