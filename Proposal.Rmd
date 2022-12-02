@@ -20,6 +20,18 @@ library(tidyverse)
 ```{r}
 head(sesame)
 ```
+
+
+```{r}
+sesame %>% 
+  mutate(diffbody = postbody - prebody) %>% 
+  mutate(difflet = postlet - prelet) %>% 
+  mutate(diffnumb = postnumb - prenumb) %>% 
+  mutate(diffrelat = postrelat - prerelat) %>%
+  mutate(diffclasf = postclasf - preclasf)
+```
+
+
 ```{r}
 sesame %>%
   group_by(site) %>%
