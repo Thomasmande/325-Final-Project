@@ -26,6 +26,7 @@ head(sesame)
 sesame %>% 
   mutate(diffbody = postbody - prebody) %>% 
   mutate(difflet = postlet - prelet) %>% 
+  mutate(diffform = postform - preform) %>% 
   mutate(diffnumb = postnumb - prenumb) %>% 
   mutate(diffrelat = postrelat - prerelat) %>%
   mutate(diffclasf = postclasf - preclasf)
