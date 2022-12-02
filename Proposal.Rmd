@@ -13,7 +13,12 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r load-data}
 #install.packages('haven')
 library(haven)
-sesame <- read_dta("~/Downloads/sesame.dta")
+sesame <- read_dta("sesame.dta")
 ```
+
+```{r}
+head(sesame)
+```
+
 
 
