@@ -20,16 +20,73 @@ library(tidyverse)
 ```{r}
 head(sesame)
 ```
+```{r}
+sesame <- sesame %>%
+  mutate(viewcat = as.factor(viewcat)) %>%
+  mutate(site = as.factor(site)) %>%
+  mutate(sex = as.factor(sex)) %>%
+  mutate(setting = as.factor(setting)) %>%
+  mutate(viewenc = as.factor(viewenc)) %>%
+  mutate(regular = as.factor(regular))
+```
 
 
 ```{r}
-sesame %>% 
+sesame <- sesame %>% 
   mutate(diffbody = postbody - prebody) %>% 
   mutate(difflet = postlet - prelet) %>% 
   mutate(diffform = postform - preform) %>% 
   mutate(diffnumb = postnumb - prenumb) %>% 
   mutate(diffrelat = postrelat - prerelat) %>%
   mutate(diffclasf = postclasf - preclasf)
+```
+
+```{r}
+sesame %>%
+  group_by(viewcat) %>%
+  summarise(mean = mean(diffbody)) 
+sesame %>%
+  group_by(viewcat) %>%
+  summarise(mean = mean(difflet)) 
+sesame %>%
+  group_by(viewcat) %>%
+  summarise(mean = mean(diffform)) 
+sesame %>%
+  group_by(viewcat) %>%
+  summarise(mean = mean(diffnumb)) 
+sesame %>%
+  group_by(viewcat) %>%
+  summarise(mean = mean(diffrelat)) 
+sesame %>%
+  group_by(viewcat) %>%
+  summarise(mean = mean(diffclasf)) 
+```
+```{r}
+sesame %>%
+  group_by(site) %>%
+  summarise(mean = mean(diffbody)) 
+sesame %>%
+  group_by(site) %>%
+  summarise(mean = mean(difflet)) 
+sesame %>%
+  group_by(site) %>%
+  summarise(mean = mean(diffform)) 
+sesame %>%
+  group_by(site) %>%
+  summarise(mean = mean(diffnumb)) 
+sesame %>%
+  group_by(site) %>%
+  summarise(mean = mean(diffrelat)) 
+sesame %>%
+  group_by(site) %>%
+  summarise(mean = mean(diffclasf)) 
+```
+```{r}
+ggplot(data = sesame, mapping = aes(x = prelet, y = difflet, color = viewcat)) +
+  geom_point()
+
+ggplot(data = sesame, mapping = aes(x = prenumb, y = diffnumb, color = viewcat)) +
+  geom_point()
 ```
 
 
@@ -50,6 +107,21 @@ sesame %>%
 sesame %>%
   group_by(viewcat) %>%
   count(encour)
+```
+
+```{r}
+lm_body <- lm(diffbody ~ viewcat, data = sesame)
+lm_let <- lm(difflet ~ viewcat, data = sesame)
+lm_form <- lm(diffform ~ viewcat, data = sesame)
+lm_numb <- lm(diffnumb ~ viewcat, data = sesame)
+lm_relat <- lm(diffrelat ~ viewcat, data = sesame)
+lm_clasf <- lm(diffclasf ~ viewcat, data = sesame)
+summary(lm_body)
+summary(lm_let)
+summary(lm_form)
+summary(lm_numb)
+summary(lm_relat)
+summary(lm_clasf)
 ```
 
 
