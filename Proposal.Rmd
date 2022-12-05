@@ -9,17 +9,21 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
 ```{r load-data}
 #install.packages('haven')
 library(haven)
 sesame <- read_dta("sesame.dta")
 library(tidyverse)
+library(knitr)
+library(broom)
 ```
 
 ```{r}
 head(sesame)
 ```
+
+### Data Cleaning + Super Basic Stats
+
 ```{r}
 sesame <- sesame %>%
   mutate(viewcat = as.factor(viewcat)) %>%
@@ -28,6 +32,10 @@ sesame <- sesame %>%
   mutate(setting = as.factor(setting)) %>%
   mutate(viewenc = as.factor(viewenc)) %>%
   mutate(regular = as.factor(regular))
+```
+
+```{r}
+levels(sesame$site) <- c("Disadv City", "Adv Sub", "Adv Rural", "Disadv Rural", "Disadv Spanish")
 ```
 
 
@@ -40,55 +48,6 @@ sesame <- sesame %>%
   mutate(diffrelat = postrelat - prerelat) %>%
   mutate(diffclasf = postclasf - preclasf)
 ```
-
-```{r}
-sesame %>%
-  group_by(viewcat) %>%
-  summarise(mean = mean(diffbody)) 
-sesame %>%
-  group_by(viewcat) %>%
-  summarise(mean = mean(difflet)) 
-sesame %>%
-  group_by(viewcat) %>%
-  summarise(mean = mean(diffform)) 
-sesame %>%
-  group_by(viewcat) %>%
-  summarise(mean = mean(diffnumb)) 
-sesame %>%
-  group_by(viewcat) %>%
-  summarise(mean = mean(diffrelat)) 
-sesame %>%
-  group_by(viewcat) %>%
-  summarise(mean = mean(diffclasf)) 
-```
-```{r}
-sesame %>%
-  group_by(site) %>%
-  summarise(mean = mean(diffbody)) 
-sesame %>%
-  group_by(site) %>%
-  summarise(mean = mean(difflet)) 
-sesame %>%
-  group_by(site) %>%
-  summarise(mean = mean(diffform)) 
-sesame %>%
-  group_by(site) %>%
-  summarise(mean = mean(diffnumb)) 
-sesame %>%
-  group_by(site) %>%
-  summarise(mean = mean(diffrelat)) 
-sesame %>%
-  group_by(site) %>%
-  summarise(mean = mean(diffclasf)) 
-```
-```{r}
-ggplot(data = sesame, mapping = aes(x = prelet, y = difflet, color = viewcat)) +
-  geom_point()
-
-ggplot(data = sesame, mapping = aes(x = prenumb, y = diffnumb, color = viewcat)) +
-  geom_point()
-```
-
 
 ```{r}
 sesame %>%
@@ -109,7 +68,13 @@ sesame %>%
   count(encour)
 ```
 
+
+### Question 1: Does watching sesame street impact learning?
+
+
 ```{r}
+#Created models to look for effects of being in different viewing categories on learning across categories. Seems like two most significant ones are difflet and diffnumb, others not very strong effects
+
 lm_body <- lm(diffbody ~ viewcat, data = sesame)
 lm_let <- lm(difflet ~ viewcat, data = sesame)
 lm_form <- lm(diffform ~ viewcat, data = sesame)
@@ -124,5 +89,126 @@ summary(lm_relat)
 summary(lm_clasf)
 ```
 
+```{r}
+# Mean in difference in each of these scores by view category
+sesame %>%
+  group_by(viewcat) %>%
+  summarise(mean = mean(diffbody)) 
+sesame %>%
+  group_by(viewcat) %>%
+  summarise(mean = mean(difflet)) 
+sesame %>%
+  group_by(viewcat) %>%
+  summarise(mean = mean(diffform)) 
+sesame %>%
+  group_by(viewcat) %>%
+  summarise(mean = mean(diffnumb)) 
+sesame %>%
+  group_by(viewcat) %>%
+  summarise(mean = mean(diffrelat)) 
+sesame %>%
+  group_by(viewcat) %>%
+  summarise(mean = mean(diffclasf)) 
+```
 
+
+```{r}
+#see what happens using regular instead of viewcat. still strongly significant
+lm_let_reg <- lm(difflet ~ regular, data = sesame)
+lm_numb_reg <- lm(diffnumb ~ regular, data = sesame)
+summary(lm_let_reg)
+summary(lm_numb_reg)
+```
+
+
+```{r}
+#Decided to focus in on variables with two strongest effects, and see whether those effects still held up when control for other characteristics. The effects did hold up as significant, but other variables were significant as well. From this, though, it fees fair to include that watching Sesame Street more frequently did result in increased learning about letters and numbers.The models (especially the second one) still have pretty low adjusted R^2's tho, so definitely a lot of room to improve in our predictive power.
+
+lm_let <- lm(difflet ~ viewcat + sex + age + setting + + prelet + site, data = sesame)
+lm_numb <- lm(diffnumb ~ viewcat + sex + age + setting + + prenumb + site, data = sesame)
+
+summary(lm_let)
+summary(lm_numb)
+```
+
+
+### Question 2: How did the benefits of watching sesame street vary across demographic groups?
+
+
+```{r}
+#Continuing focus on difflet and diffnumb, these graphs show how learning varied depending on how much people watched, and start to illustrate potnetial differences between groups
+ggplot(data = sesame, mapping = aes(x = viewcat, y = difflet, color = site)) +
+  geom_point()
+ggplot(data = sesame, mapping = aes(x = viewcat, y = diffnumb, color = site)) +
+  geom_point()
+```
+
+```{r}
+#related summary stats for all categories
+sesame %>%
+  group_by(site) %>%
+  summarise(mean = mean(diffbody)) 
+sesame %>%
+  group_by(site) %>%
+  summarise(mean = mean(difflet)) 
+sesame %>%
+  group_by(site) %>%
+  summarise(mean = mean(diffform)) 
+sesame %>%
+  group_by(site) %>%
+  summarise(mean = mean(diffnumb)) 
+sesame %>%
+  group_by(site) %>%
+  summarise(mean = mean(diffrelat)) 
+sesame %>%
+  group_by(site) %>%
+  summarise(mean = mean(diffclasf)) 
+```
+```{r}
+#age and difflet, diffnumb
+ggplot(data = sesame, mapping = aes(x = age, y = difflet)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(data = sesame, mapping = aes(x = age, y = diffnumb)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+```{r}
+#age and difflet, diffnumb
+ggplot(data = sesame, mapping = aes(x = prelet, y = difflet)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+ggplot(data = sesame, mapping = aes(x = prenumb, y = diffnumb)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+
+
+```{r}
+ggplot(data = sesame, mapping = aes(x = prelet, y = difflet, color = viewcat)) +
+  geom_point()
+
+ggplot(data = sesame, mapping = aes(x = prenumb, y = diffnumb, color = viewcat)) +
+  geom_point()
+```
+
+```{r}
+# Here I was trying to see whether or not any interaction terms are significant. First I tried to create a model with just viewcat, site, and their interaction, and basically nothing it it was significant. Then I added in age and pre scores, which both should up as significant. Then I added interactions with those, and everything went back to insigificant. My thought was that with that many variables nothing was going to show up as significant, so I tried again below using regular instead of viewcat, but still nothing significant. Interesting result, not really sure what to make of it.
+
+lm_let_interact <- lm(difflet ~ viewcat + site + viewcat*site + age + prelet + viewcat*age + viewcat*prelet, data = sesame)
+lm_numb_interact <- lm(diffnumb ~ viewcat + site + viewcat*site + age + prenumb + viewcat*age + viewcat * prenumb, data = sesame)
+
+summary(lm_let_interact)
+summary(lm_numb_interact)
+```
+
+```{r}
+lm_let_interact2 <- lm(difflet ~ regular + site + regular*site, data = sesame)
+lm_numb_interact2 <- lm(diffnumb ~ regular + site + regular*site, data = sesame)
+
+summary(lm_let_interact2)
+summary(lm_numb_interact2)
+```
 
