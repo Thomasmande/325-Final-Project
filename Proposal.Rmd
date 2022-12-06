@@ -138,9 +138,13 @@ summary(lm_numb)
 ```{r}
 #Continuing focus on difflet and diffnumb, these graphs show how learning varied depending on how much people watched, and start to illustrate potnetial differences between groups
 ggplot(data = sesame, mapping = aes(x = viewcat, y = difflet, color = site)) +
-  geom_point()
+  geom_point() +
+  labs(title = "Difference in Letter Scores by Viewing Category and Site",
+       x = "Viewing Category", y = "Score Difference", color = "Site")
 ggplot(data = sesame, mapping = aes(x = viewcat, y = diffnumb, color = site)) +
-  geom_point()
+  geom_point() +
+  labs(title = "Difference in Number Scores by Viewing Category and Site",
+       x = "Viewing Category", y = "Score Difference", color = "Site")
 ```
 
 ```{r}
