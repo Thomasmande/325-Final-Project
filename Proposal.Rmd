@@ -215,7 +215,7 @@ lm_numb_interact2 <- lm(diffnumb ~ regular + site + regular*site, data = sesame)
 summary(lm_let_interact2)
 summary(lm_numb_interact2)
 ```
-Model Working:
+Model Working - Sites:
 
 ```{r linear-models-demographic-groups}
 site1 <- sesame %>%
@@ -266,4 +266,6 @@ lm_numb_site5 <- lm(diffnumb ~ viewcat + age + prenumb, data = site5)
 summary(lm_let_site5)
 summary(lm_numb_site5)
 ```
+
+
 
