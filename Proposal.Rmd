@@ -113,7 +113,7 @@ sesame %>%
 
 
 ```{r}
-#see what happens using regular instead of viewcat. still strongly significant
+#see what happens using regular instead of viewcat. still strongly significant. could maybe try these with all response vars if we are curious
 lm_let_reg <- lm(difflet ~ regular, data = sesame)
 lm_numb_reg <- lm(diffnumb ~ regular, data = sesame)
 summary(lm_let_reg)
@@ -122,7 +122,9 @@ summary(lm_numb_reg)
 
 
 ```{r}
-#Decided to focus in on variables with two strongest effects, and see whether those effects still held up when control for other characteristics. The effects did hold up as significant, but other variables were significant as well. From this, though, it fees fair to include that watching Sesame Street more frequently did result in increased learning about letters and numbers.The models (especially the second one) still have pretty low adjusted R^2's tho, so definitely a lot of room to improve in our predictive power.
+#Decided to focus in on variables with two strongest effects, and see whether those effects still held up when control for other characteristics. The effects did hold up as significant, but other variables were significant as well. From this, though, it feels fair to include that watching Sesame Street more frequently did result in increased learning about letters and numbers.The models (especially the second one) still have pretty low adjusted R^2's tho, so definitely a lot of room to improve in our predictive power.
+
+#Is there anything else we have to do to show that sesame street generally was associated with increased learning, at least in these two categories?
 
 lm_let <- lm(difflet ~ viewcat + sex + age + setting + + prelet + site, data = sesame)
 lm_numb <- lm(diffnumb ~ viewcat + sex + age + setting + + prenumb + site, data = sesame)
@@ -137,6 +139,7 @@ summary(lm_numb)
 
 ```{r}
 #Continuing focus on difflet and diffnumb, these graphs show how learning varied depending on how much people watched, and start to illustrate potnetial differences between groups
+
 ggplot(data = sesame, mapping = aes(x = viewcat, y = difflet, color = site)) +
   geom_point() +
   labs(title = "Difference in Letter Scores by Viewing Category and Site",
@@ -145,6 +148,16 @@ ggplot(data = sesame, mapping = aes(x = viewcat, y = diffnumb, color = site)) +
   geom_point() +
   labs(title = "Difference in Number Scores by Viewing Category and Site",
        x = "Viewing Category", y = "Score Difference", color = "Site")
+```
+
+```{r}
+#Just made these graphs and I really like them. They confirm the general point that there isn't really an interaction between the sites and how much people's scores are improving--the scores of certain gropus are just generally improving at a higher rate. 
+
+library(ggplot2)
+qplot(x = as.numeric(viewcat), y = difflet, data = sesame, color = site) +
+  geom_smooth(method = "lm") 
+qplot(x = as.numeric(viewcat), y = diffnumb, data = sesame, color = site) +
+  geom_smooth(method = "lm") 
 ```
 
 ```{r}
@@ -169,7 +182,7 @@ sesame %>%
   summarise(mean = mean(diffclasf)) 
 ```
 ```{r}
-#age and difflet, diffnumb
+#age and difflet, diffnumb, since age was significant in earlier models. don't see much of a correlation
 ggplot(data = sesame, mapping = aes(x = age, y = difflet)) +
   geom_point() +
   geom_smooth(method = "lm")
@@ -179,7 +192,7 @@ ggplot(data = sesame, mapping = aes(x = age, y = diffnumb)) +
 ```
 
 ```{r}
-#age and difflet, diffnumb
+#prelet, prenumb and difflet, diffnumb, since age these were significant in earlier models. seems like there is a general correlation where students who had stronger pre scores improved less.
 ggplot(data = sesame, mapping = aes(x = prelet, y = difflet)) +
   geom_point() +
   geom_smooth(method = "lm")
@@ -191,6 +204,8 @@ ggplot(data = sesame, mapping = aes(x = prenumb, y = diffnumb)) +
 
 
 ```{r}
+#these give an idea of how groups compared on their intial test scores and how much they improved
+
 ggplot(data = sesame, mapping = aes(x = prelet, y = difflet, color = viewcat)) +
   geom_point()
 
@@ -199,7 +214,7 @@ ggplot(data = sesame, mapping = aes(x = prenumb, y = diffnumb, color = viewcat))
 ```
 
 ```{r}
-# Here I was trying to see whether or not any interaction terms are significant. First I tried to create a model with just viewcat, site, and their interaction, and basically nothing in it was significant. Then I added in age and pre scores, which both should up as significant. Then I added interactions with those, and everything went back to insigificant. My thought was that with that many variables nothing was going to show up as significant, so I tried again below using regular instead of viewcat, but still nothing significant. Interesting result, not really sure what to make of it
+# Here I was trying to see whether or not any interaction terms are significant. First I tried to create a model with just viewcat, site, and their interaction, and basically nothing in it was significant. Then I added in age and pre scores, which both showed up as significant. Then I added interactions with those, and everything went back to insignificant. My thought was that with that many variables nothing was going to show up as significant, so I tried again below using regular instead of viewcat, but still nothing significant. Interesting result, not really sure what to make of it
 
 lm_let_interact <- lm(difflet ~ viewcat + site + viewcat*site + age + prelet + viewcat*age + viewcat*prelet, data = sesame)
 lm_numb_interact <- lm(diffnumb ~ viewcat + site + viewcat*site + age + prenumb + viewcat*age + viewcat * prenumb, data = sesame)
@@ -266,6 +281,14 @@ lm_numb_site5 <- lm(diffnumb ~ viewcat + age + prenumb, data = site5)
 summary(lm_let_site5)
 summary(lm_numb_site5)
 ```
+
+```{r}
+sitemodel1 <- lm(difflet ~ site, data = sesame)
+sitemodel2 <- lm(diffnumb ~ site, data = sesame)
+summary(sitemodel1)
+summary(sitemodel2)
+```
+
 
 
 
