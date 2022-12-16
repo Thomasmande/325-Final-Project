@@ -2,7 +2,9 @@
 title: "Proposal EDA"
 author: "Thomas Mande"
 date: "2022-12-02"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -25,6 +27,7 @@ head(sesame)
 ### Data Cleaning + Super Basic Stats
 
 ```{r}
+#sesame 1 i'm using for gams
 sesame <- sesame %>%
   mutate(viewcat = as.factor(viewcat)) %>%
   mutate(site = as.factor(site)) %>%
@@ -32,6 +35,10 @@ sesame <- sesame %>%
   mutate(setting = as.factor(setting)) %>%
   mutate(viewenc = as.factor(viewenc)) %>%
   mutate(regular = as.factor(regular))
+sesame1<- sesame
+sesame1 <- sesame1 %>%
+  mutate(difflet = postlet - prelet) %>%
+  mutate(diffnumb = postnumb - prenumb)
 ```
 
 ```{r}
@@ -289,6 +296,85 @@ summary(sitemodel1)
 summary(sitemodel2)
 ```
 
+
+Question 3 Work:
+Can we accurately predict how students’ test scores might change based on their demographic characteristics and how much they watch sesame street?
+
+My first attempt is through using regression trees with the target of predicting both 
+difflet and diffnum based off of the demogrpahic characteristics and how much they actually 
+watch the program.
+
+```{r}
+library(tree)
+library(MASS)
+```
+
+```{r }
+set.seed(4)
+train <- sample(1:nrow(sesame), nrow(sesame)/2) 
+tree.letters <- tree(difflet ~ site + viewcat, sesame, subset = train)
+summary(tree.letters)
+plot(tree.letters)
+text(tree.letters, pretty = 0)
+```
+
+Attempt at pruning...
+```{r}
+cv.letters <- cv.tree(tree.letters)
+plot(cv.letters$size, cv.letters$dev, type = "b")
+```
+Based off of this, the CV shows that the best tree is one with 4 nodes. I made that tree below...
+
+```{r pruned-letters}
+prune.letters <- prune.tree(tree.letters, best = 4)
+summary(prune.letters)
+plot(prune.letters)
+text(prune.letters, pretty = 0)
+```
+
+
+
+```{r }
+set.seed(4)
+train <- sample(1:nrow(sesame), nrow(sesame)/2) 
+tree.nums <- tree(diffnumb ~ site + viewcat, sesame, subset = train)
+summary(tree.nums)
+plot(tree.nums)
+text(tree.nums, pretty = 0)
+```
+
+```{r}
+cv.numbers <- cv.tree(tree.nums)
+plot(cv.numbers$size, cv.numbers$dev, type = "b")
+```
+Here, the optimal nodes determined by cross validation is 2.
+
+```{r}
+prune.numbers <- prune.tree(tree.nums, best = 2)
+summary(prune.numbers)
+plot(prune.numbers)
+text(prune.numbers, pretty = 0)
+```
+
+Ok so I fit the two trees above with site (which is the level of how economically 
+disadvantaged the children are) and viewcat (which is how frequently they watch
+Sesame Street). 
+
+The other way that we had proposed answering this question was through GAMs.
+So this is what I worked with on those...
+
+```{r}
+#In the lab I was looking at it just did not explain why the degrees of freedom were chosen, but I did n+1 for the number of groups that there were?? But maybe that's not the right way to approach it
+#There are 5 sites and 4 viewcats
+library(gam)
+#gam.lets <- gam(difflet ~ ns(site, 6) + ns(viewcat, 5), data = sesame1)
+#gam.nums <- gam(diffnumb ~ ns(site, 6) + ns(viewcat, 5), data = sesame1)
+#summary(gam.lets)
+#summary(gam.nums)
+
+#I keep getting this error
+#Error in (1 - h) * qs[i] : non-numeric argument to binary operator
+```
 
 
 
