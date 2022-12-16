@@ -162,7 +162,7 @@ ggplot(data = sesame, mapping = aes(x = viewcat, y = diffnumb, color = site)) +
 
 library(ggplot2)
 qplot(x = as.numeric(viewcat), y = difflet, data = sesame, color = site) +
-  geom_smooth(method = "lm") 
+  geom_smooth(method = "lm") + labs(title = "")
 qplot(x = as.numeric(viewcat), y = diffnumb, data = sesame, color = site) +
   geom_smooth(method = "lm") 
 ```
@@ -214,10 +214,10 @@ ggplot(data = sesame, mapping = aes(x = prenumb, y = diffnumb)) +
 #these give an idea of how groups compared on their intial test scores and how much they improved
 
 ggplot(data = sesame, mapping = aes(x = prelet, y = difflet, color = viewcat)) +
-  geom_point()
+  geom_point() + labs(title = "Distribution of Pretest vs. Improvement for Letters")
 
 ggplot(data = sesame, mapping = aes(x = prenumb, y = diffnumb, color = viewcat)) +
-  geom_point()
+  geom_point() + labs(title = "Distribution of Pretest vs. Improvement for Numbers")
 ```
 
 ```{r}
