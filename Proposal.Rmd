@@ -170,8 +170,33 @@ ggplot(data = sesame, mapping = aes(x = viewcat, y = diffnumb, color = site)) +
 
 library(ggplot2)
 qplot(x = as.numeric(viewcat), y = difflet, data = sesame, color = site) +
-  geom_smooth(method = "lm") + labs(title = "")
+  geom_smooth(method = "lm") + labs(title = "") +
+  labs(title = "Difference in Letter Scores by Viewing Category and Site",
+       x = "Viewing Category", y = "Score Difference", color = "Site")
 qplot(x = as.numeric(viewcat), y = diffnumb, data = sesame, color = site) +
+  geom_smooth(method = "lm") +
+  labs(title = "Difference in Number Scores by Viewing Category and Site",
+       x = "Viewing Category", y = "Score Difference", color = "Site")
+```
+
+```{r}
+qplot(x = as.numeric(viewcat), y = difflet, data = sesame, color = age) +
+  geom_smooth(method = "lm") + labs(title = "")
+qplot(x = as.numeric(viewcat), y = diffnumb, data = sesame, color = age) +
+  geom_smooth(method = "lm") 
+```
+
+```{r}
+qplot(x = as.numeric(viewcat), y = difflet, data = sesame, color = prelet) +
+  geom_smooth(method = "lm") + labs(title = "")
+qplot(x = as.numeric(viewcat), y = diffnumb, data = sesame, color = prenumb) +
+  geom_smooth(method = "lm") 
+```
+
+```{r}
+qplot(x = as.numeric(viewcat), y = difflet, data = sesame, color = sex) +
+  geom_smooth(method = "lm") + labs(title = "")
+qplot(x = as.numeric(viewcat), y = diffnumb, data = sesame, color = sex) +
   geom_smooth(method = "lm") 
 ```
 
@@ -251,17 +276,17 @@ summary(lm_numb_age_interact)
 ```
 
 ```{r}
-lm_let_age_interact <- lm(difflet ~ viewcat + age + viewcat*age, data = sesame)
-lm_numb_age_interact <- lm(diffnumb ~ viewcat + age + viewcat*age, data = sesame)
-summary(lm_let_age_interact)
-summary(lm_numb_age_interact)
+lm_let_prelet_interact <- lm(difflet ~ viewcat + prelet + viewcat*prelet, data = sesame)
+lm_numb_prenumb_interact <- lm(diffnumb ~ viewcat + prenumb + viewcat*prenumb, data = sesame)
+summary(lm_let_prelet_interact)
+summary(lm_numb_prenumb_interact)
 ```
 
 ```{r}
-lm_let_prelet_interact <- lm(difflet ~ viewcat + prelet + viewcat*prelet, data = sesame)
-lm_numb_prenumb_interact <- lm(diffnumb ~ viewcat + age + viewcat*prenumb, data = sesame)
-summary(lm_let_prelet_interact)
-summary(lm_numb_prenumb_interact)
+lm_let_sex_interact <- lm(difflet ~ viewcat + sex + viewcat*sex, data = sesame)
+lm_numb_sex_interact <- lm(diffnumb ~ viewcat + sex + viewcat*sex, data = sesame)
+summary(lm_let_sex_interact)
+summary(lm_numb_sex_interact)
 ```
 
 Model Working - Sites:
