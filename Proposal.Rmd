@@ -97,7 +97,7 @@ summary(lm_clasf)
 ```
 
 ```{r}
-# Mean in difference in each of these scores by view category
+# Mean in difference in each of these scores by view category. can skip for analysis
 sesame %>%
   group_by(viewcat) %>%
   summarise(mean = mean(diffbody)) 
@@ -120,11 +120,19 @@ sesame %>%
 
 
 ```{r}
-#see what happens using regular instead of viewcat. still strongly significant. could maybe try these with all response vars if we are curious
+#see what happens using regular instead of viewcat. still strongly significant for difflet and diffnumb. still not significant for a few of them, but significant for a few new ones (diffclasf, diffform)
 lm_let_reg <- lm(difflet ~ regular, data = sesame)
 lm_numb_reg <- lm(diffnumb ~ regular, data = sesame)
+lm_body_reg <- lm(diffbody ~ regular, data = sesame)
+lm_form_reg <- lm(diffform ~ regular, data = sesame)
+lm_relat_reg <- lm(diffrelat ~ regular, data = sesame)
+lm_clasf_reg <- lm(diffclasf ~ regular, data = sesame)
+summary(lm_body_reg)
 summary(lm_let_reg)
+summary(lm_form_reg)
 summary(lm_numb_reg)
+summary(lm_relat_reg)
+summary(lm_clasf_reg)
 ```
 
 
@@ -188,6 +196,8 @@ sesame %>%
   group_by(site) %>%
   summarise(mean = mean(diffclasf)) 
 ```
+
+
 ```{r}
 #age and difflet, diffnumb, since age was significant in earlier models. don't see much of a correlation
 ggplot(data = sesame, mapping = aes(x = age, y = difflet)) +
@@ -223,20 +233,37 @@ ggplot(data = sesame, mapping = aes(x = prenumb, y = diffnumb, color = viewcat))
 ```{r}
 # Here I was trying to see whether or not any interaction terms are significant. First I tried to create a model with just viewcat, site, and their interaction, and basically nothing in it was significant. Then I added in age and pre scores, which both showed up as significant. Then I added interactions with those, and everything went back to insignificant. My thought was that with that many variables nothing was going to show up as significant, so I tried again below using regular instead of viewcat, but still nothing significant. Interesting result, not really sure what to make of it
 
-lm_let_interact <- lm(difflet ~ viewcat + site + viewcat*site + age + prelet + viewcat*age + viewcat*prelet, data = sesame)
-lm_numb_interact <- lm(diffnumb ~ viewcat + site + viewcat*site + age + prenumb + viewcat*age + viewcat * prenumb, data = sesame)
+lm_let_interact <- lm(difflet ~ viewcat + site + viewcat*site, data = sesame)
+lm_numb_interact <- lm(diffnumb ~ viewcat + site + viewcat*site, data = sesame)
+lm_let_interact_full <- lm(difflet ~ viewcat + site + viewcat*site + age + prelet + viewcat*age + viewcat*prelet, data = sesame)
+lm_numb_interact_full <- lm(diffnumb ~ viewcat + site + viewcat*site + age + prenumb + viewcat*age + viewcat * prenumb, data = sesame)
 
 summary(lm_let_interact)
 summary(lm_numb_interact)
 ```
 
 ```{r}
-lm_let_interact2 <- lm(difflet ~ regular + site + regular*site, data = sesame)
-lm_numb_interact2 <- lm(diffnumb ~ regular + site + regular*site, data = sesame)
-
-summary(lm_let_interact2)
-summary(lm_numb_interact2)
+# Check for significant interaction with age
+lm_let_age_interact <- lm(difflet ~ viewcat + age + viewcat*age, data = sesame)
+lm_numb_age_interact <- lm(diffnumb ~ viewcat + age + viewcat*age, data = sesame)
+summary(lm_let_age_interact)
+summary(lm_numb_age_interact)
 ```
+
+```{r}
+lm_let_age_interact <- lm(difflet ~ viewcat + age + viewcat*age, data = sesame)
+lm_numb_age_interact <- lm(diffnumb ~ viewcat + age + viewcat*age, data = sesame)
+summary(lm_let_age_interact)
+summary(lm_numb_age_interact)
+```
+
+```{r}
+lm_let_prelet_interact <- lm(difflet ~ viewcat + prelet + viewcat*prelet, data = sesame)
+lm_numb_prenumb_interact <- lm(diffnumb ~ viewcat + age + viewcat*prenumb, data = sesame)
+summary(lm_let_prelet_interact)
+summary(lm_numb_prenumb_interact)
+```
+
 Model Working - Sites:
 
 ```{r linear-models-demographic-groups}
