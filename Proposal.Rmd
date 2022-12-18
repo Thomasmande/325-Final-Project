@@ -428,5 +428,11 @@ library(gam)
 #Error in (1 - h) * qs[i] : non-numeric argument to binary operator
 ```
 
+Some more EDA stuff...
+
+```{r}
+ggplot(sesame, aes(x = difflet)) + geom_histogram() + theme_bw() + labs(title = "Distribution of Letter Test Score Improvement", x = "Score Improvement from Pre to Post Test", y = "Count")
+ggplot(sesame, aes(x = diffnumb)) + geom_histogram() + theme_bw() + labs(title = "Distribution of Number Test Score Improvement", x = "Score Improvement from Pre to Post Test", y = "Count")
+```
 
 
