@@ -358,8 +358,8 @@ watch the program.
 
 ```{r}
 # Check basic linear models for prediction accuracy
-q3_let <- lm(difflet ~ viewcat + site, data = sesame)
-q3_numb <- lm(diffnumb ~ viewcat + site, data = sesame)
+q3_let <- lm(difflet ~ viewcat + site + sex + age + setting + viewenc + prelet, data = sesame)
+q3_numb <- lm(diffnumb ~ viewcat + site + sex + age + setting + viewenc + prenumb, data = sesame)
 summary(q3_let)
 summary(q3_numb)
 ```
@@ -462,8 +462,65 @@ So this is what I worked with on those...
 Random Forest and Boosting
 
 ```{r}
-
+set.seed(2)
+train <- sample(1:nrow(sesame), nrow(sesame)*.7)
+sesame.test <- sesame[-train,]
 ```
+
+```{r}
+library(randomForest)
+set.seed(1)
+bag.sesame.let <- randomForest(difflet ~ site + sex + age + viewcat + setting + viewenc + prelet,
+                            data = sesame, subset = train, mtry = 7, importance = TRUE)
+bag.sesame.numb <- randomForest(diffnumb ~ site + sex + age + viewcat + setting + viewenc +
+                              prenumb, data = sesame, subset = train, mtry = 7, importance = TRUE)
+```
+
+```{r}
+yhat.let <- predict(bag.sesame.let, newdata = sesame.test)
+plot(yhat.let, sesame.test$difflet)
+abline(0,1)
+mean((yhat.let - sesame.test$difflet)^2)
+
+yhat.numb <- predict(bag.sesame.numb, newdata = sesame.test)
+plot(yhat.numb, sesame.test$diffnumb)
+abline(0,1)
+mean((yhat.numb - sesame.test$diffnumb)^2)
+```
+
+
+```{r}
+# Check basic linear models for prediction accuracy
+q3_let <- lm(difflet ~ viewcat + site + sex + age + setting + viewenc + prelet, data = sesame, subset = train)
+q3_numb <- lm(diffnumb ~ viewcat + site + sex + age + setting + viewenc + prenumb, data = sesame, subset = train)
+```
+
+```{r}
+# Look at MSPE for linear models
+pred_let <- predict(q3_let, newdata = sesame.test)
+mean((pred_let - sesame.test$difflet)^2)
+
+pred_numb <- predict(q3_numb, newdata = sesame.test)
+mean((pred_numb - sesame.test$diffnumb)^2)
+```
+
+
+```{r}
+library(gbm)
+boost.sesame.let <- gbm(difflet ~ site + sex + age + viewcat + setting + viewenc + prelet, data =
+                      sesame[train,], distribution = "gaussian", n.trees = 5000,
+                      interaction.depth = 3)
+yhat.boost.let <- predict(boost.sesame.let, newdata = sesame.test, n.trees = 5000)
+mean((yhat.boost.let - sesame.test$difflet)^2)
+
+
+boost.sesame.numb <- gbm(diffnumb ~ site + sex + age + viewcat + setting + viewenc + prenumb,
+                         data= sesame[train,], distribution = "gaussian", n.trees = 5000,
+                      interaction.depth = 3)
+yhat.boost.numb <- predict(boost.sesame.numb, newdata = sesame.test, n.trees = 5000)
+mean((yhat.boost.numb - sesame.test$diffnumb)^2)
+```
+
 
 
 ```{r}
