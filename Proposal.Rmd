@@ -485,31 +485,59 @@ ggplot(sesame, aes(x = diffnumb)) + geom_histogram() + theme_bw() + labs(title =
 Question 1 - Lasso Selection:
 
 ```{r}
+head(sesame)
+```
+
+```{r}
+myvars <- c("site", "sex", "age", "viewcat", "setting", "viewenc", "regular", "difflet")
+let_lasso_data <- sesame[myvars]
+head(let_lasso_data)
+```
+
+
+```{r}
 library(glmnet)
 
-grid <- 10^seq(10, -2, length = 100)
+x <- model.matrix (difflet~.,let_lasso_data)[,-1]
+y <- let_lasso_data$difflet
 
-training <- sesame %>%
-  sample_frac(0.5)
+#perform k-fold cross-validation to find optimal lambda value
+cv_model <- cv.glmnet(x, y, alpha = 1)
 
-testing <- sesame %>%
-  anti_join(training)
+#find optimal lambda value that minimizes test MSE
+best_lambda <- cv_model$lambda.min
+best_lambda
 
-num_lm <- training %>%
-  lm(diffnumb ~ ., .)
+#produce plot of test MSE by lambda value
+plot(cv_model) 
 
-num_training_matrix <- model.matrix(formula(diffnumb ~ .), training)[,-1]
-num_testing_matrix <- model.matrix(formula(diffnumb ~ .), testing)[,-1]
-sesame_num <- training$diffnumb
-
-#ridge.modNUM <- glmnet(num_training_matrix, sesame, alpha = 0, lambda = grid)
-#ridge.num.pred <- predict(ridge.modNUM, num_testing_matrix)
-
-#lasso.modNUM <- glmnet(num_training_matrix, training$diffnumb, alpha = 1, lambda = grid)
-
-#mean((predict(lasso.modNUM, num_testing_matrix) - testing$diffnumb)^2)
-```
+#get coefs of best model
+best_model <- glmnet(x, y, alpha = 1, lambda = best_lambda)
+coef(best_model)
 ```
 
+```{r}
+myvars2 <- c("site", "sex", "age", "viewcat", "setting", "viewenc", "regular", "diffnumb")
+numb_lasso_data <- sesame[myvars2]
+head(numb_lasso_data)
+```
 
+```{r}
+x2 <- model.matrix (diffnumb~.,numb_lasso_data)[,-1]
+y2 <- numb_lasso_data$diffnumb
+
+#perform k-fold cross-validation to find optimal lambda value
+cv_model <- cv.glmnet(x, y, alpha = 1)
+
+#find optimal lambda value that minimizes test MSE
+best_lambda <- cv_model$lambda.min
+best_lambda
+
+#produce plot of test MSE by lambda value
+plot(cv_model) 
+
+#get coefs of best model
+best_model <- glmnet(x, y, alpha = 1, lambda = best_lambda)
+coef(best_model)
+```
 
