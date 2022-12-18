@@ -364,7 +364,7 @@ library(MASS)
 ```{r }
 set.seed(4)
 train <- sample(1:nrow(sesame), nrow(sesame)/2) 
-tree.letters <- tree(difflet ~ site + viewcat, sesame, subset = train)
+tree.letters <- tree(difflet ~ site + viewcat + age + sex, sesame, subset = train)
 summary(tree.letters)
 plot(tree.letters)
 text(tree.letters, pretty = 0)
@@ -381,7 +381,14 @@ Based off of this, the CV shows that the best tree is one with 4 nodes. I made t
 prune.letters <- prune.tree(tree.letters, best = 4)
 summary(prune.letters)
 plot(prune.letters)
+title(main = "Prediction Tree of Letter Test Score Improvement")
 text(prune.letters, pretty = 0)
+
+
+yhat <- predict(prune.letters, newdata = sesame[-train,])
+letter.test <- sesame[-train, "difflet"]
+#plot(yhat, letter.test)
+#abline(0,1)
 ```
 
 
@@ -392,6 +399,7 @@ train <- sample(1:nrow(sesame), nrow(sesame)/2)
 tree.nums <- tree(diffnumb ~ site + viewcat, sesame, subset = train)
 summary(tree.nums)
 plot(tree.nums)
+title(main ="Prediction Tree of Number Test Score Improvement")
 text(tree.nums, pretty = 0)
 ```
 
@@ -399,14 +407,25 @@ text(tree.nums, pretty = 0)
 cv.numbers <- cv.tree(tree.nums)
 plot(cv.numbers$size, cv.numbers$dev, type = "b")
 ```
-Here, the optimal nodes determined by cross validation is 2.
+Here, the optimal nodes determined by cross validation is 4.
 
 ```{r}
-prune.numbers <- prune.tree(tree.nums, best = 2)
+prune.numbers <- prune.tree(tree.nums, best = 4)
 summary(prune.numbers)
 plot(prune.numbers)
+title(main = "Prediction Tree of Number Test Score Improvement")
 text(prune.numbers, pretty = 0)
 ```
+
+```{r}
+yhat <- predict(prune.numbers, newdata = sesame[-train,])
+num.test <- sesame[-train, "diffnumb"]
+testing <- lst(num.test)
+#plot(yhat, testing)
+#abline(0,1)
+```
+
+
 
 Ok so I fit the two trees above with site (which is the level of how economically 
 disadvantaged the children are) and viewcat (which is how frequently they watch
@@ -434,5 +453,36 @@ Some more EDA stuff...
 ggplot(sesame, aes(x = difflet)) + geom_histogram() + theme_bw() + labs(title = "Distribution of Letter Test Score Improvement", x = "Score Improvement from Pre to Post Test", y = "Count")
 ggplot(sesame, aes(x = diffnumb)) + geom_histogram() + theme_bw() + labs(title = "Distribution of Number Test Score Improvement", x = "Score Improvement from Pre to Post Test", y = "Count")
 ```
+
+
+Question 1 - Lasso Selection:
+
+```{r}
+library(glmnet)
+
+grid <- 10^seq(10, -2, length = 100)
+
+training <- sesame %>%
+  sample_frac(0.5)
+
+testing <- sesame %>%
+  anti_join(training)
+
+num_lm <- training %>%
+  lm(diffnumb ~ ., .)
+
+num_training_matrix <- model.matrix(formula(diffnumb ~ .), training)[,-1]
+num_testing_matrix <- model.matrix(formula(diffnumb ~ .), testing)[,-1]
+sesame_num <- training$diffnumb
+
+#ridge.modNUM <- glmnet(num_training_matrix, sesame, alpha = 0, lambda = grid)
+#ridge.num.pred <- predict(ridge.modNUM, num_testing_matrix)
+
+#lasso.modNUM <- glmnet(num_training_matrix, training$diffnumb, alpha = 1, lambda = grid)
+
+#mean((predict(lasso.modNUM, num_testing_matrix) - testing$diffnumb)^2)
+```
+```
+
 
 
