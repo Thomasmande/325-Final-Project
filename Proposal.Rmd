@@ -381,8 +381,6 @@ plot(q3_numb)
 ```
 
 
-
-
 ```{r}
 library(tree)
 library(MASS)
@@ -460,6 +458,13 @@ Sesame Street).
 
 The other way that we had proposed answering this question was through GAMs.
 So this is what I worked with on those...
+
+Random Forest and Boosting
+
+```{r}
+
+```
+
 
 ```{r}
 #In the lab I was looking at it just did not explain why the degrees of freedom were chosen, but I did n+1 for the number of groups that there were?? But maybe that's not the right way to approach it
