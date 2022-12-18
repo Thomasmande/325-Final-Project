@@ -141,8 +141,8 @@ summary(lm_clasf_reg)
 
 #Is there anything else we have to do to show that sesame street generally was associated with increased learning, at least in these two categories?
 
-lm_let <- lm(difflet ~ viewcat + sex + age + setting + + prelet + site + viewenc, data = sesame)
-lm_numb <- lm(diffnumb ~ viewcat + sex + age + setting + + prenumb + site + viewenc, data = sesame)
+lm_let <- lm(difflet ~ viewcat + sex + age + setting + + prelet + site, data = sesame)
+lm_numb <- lm(diffnumb ~ viewcat + sex + age + setting + + prenumb + site, data = sesame)
 
 summary(lm_let)
 summary(lm_numb)
@@ -170,35 +170,16 @@ ggplot(data = sesame, mapping = aes(x = viewcat, y = diffnumb, color = site)) +
 
 library(ggplot2)
 qplot(x = as.numeric(viewcat), y = difflet, data = sesame, color = site) +
-  geom_smooth(method = "lm") + labs(title = "") +
-  labs(title = "Difference in Letter Scores by Viewing Category and Site",
-       x = "Viewing Category", y = "Score Difference", color = "Site")
+  geom_smooth(method = "lm") + labs(title = "")
 qplot(x = as.numeric(viewcat), y = diffnumb, data = sesame, color = site) +
-  geom_smooth(method = "lm") +
-  labs(title = "Difference in Number Scores by Viewing Category and Site",
-       x = "Viewing Category", y = "Score Difference", color = "Site")
-```
-
-```{r}
-qplot(x = as.numeric(viewcat), y = difflet, data = sesame, color = age) +
-  geom_smooth(method = "lm") + labs(title = "")
-qplot(x = as.numeric(viewcat), y = diffnumb, data = sesame, color = age) +
   geom_smooth(method = "lm") 
 ```
 
 ```{r}
-qplot(x = as.numeric(viewcat), y = difflet, data = sesame, color = prelet) +
-  geom_smooth(method = "lm") + labs(title = "")
-qplot(x = as.numeric(viewcat), y = diffnumb, data = sesame, color = prenumb) +
-  geom_smooth(method = "lm") 
+
 ```
 
-```{r}
-qplot(x = as.numeric(viewcat), y = difflet, data = sesame, color = sex) +
-  geom_smooth(method = "lm") + labs(title = "")
-qplot(x = as.numeric(viewcat), y = diffnumb, data = sesame, color = sex) +
-  geom_smooth(method = "lm") 
-```
+
 
 ```{r}
 #related summary stats for all categories
@@ -276,17 +257,17 @@ summary(lm_numb_age_interact)
 ```
 
 ```{r}
-lm_let_prelet_interact <- lm(difflet ~ viewcat + prelet + viewcat*prelet, data = sesame)
-lm_numb_prenumb_interact <- lm(diffnumb ~ viewcat + prenumb + viewcat*prenumb, data = sesame)
-summary(lm_let_prelet_interact)
-summary(lm_numb_prenumb_interact)
+lm_let_age_interact <- lm(difflet ~ viewcat + age + viewcat*age, data = sesame)
+lm_numb_age_interact <- lm(diffnumb ~ viewcat + age + viewcat*age, data = sesame)
+summary(lm_let_age_interact)
+summary(lm_numb_age_interact)
 ```
 
 ```{r}
-lm_let_sex_interact <- lm(difflet ~ viewcat + sex + viewcat*sex, data = sesame)
-lm_numb_sex_interact <- lm(diffnumb ~ viewcat + sex + viewcat*sex, data = sesame)
-summary(lm_let_sex_interact)
-summary(lm_numb_sex_interact)
+lm_let_prelet_interact <- lm(difflet ~ viewcat + prelet + viewcat*prelet, data = sesame)
+lm_numb_prenumb_interact <- lm(diffnumb ~ viewcat + age + viewcat*prenumb, data = sesame)
+summary(lm_let_prelet_interact)
+summary(lm_numb_prenumb_interact)
 ```
 
 Model Working - Sites:
@@ -357,31 +338,6 @@ difflet and diffnum based off of the demogrpahic characteristics and how much th
 watch the program.
 
 ```{r}
-# Check basic linear models for prediction accuracy
-q3_let <- lm(difflet ~ viewcat + site + sex + age + setting + viewenc + prelet, data = sesame)
-q3_numb <- lm(diffnumb ~ viewcat + site + sex + age + setting + viewenc + prenumb, data = sesame)
-summary(q3_let)
-summary(q3_numb)
-```
-
-```{r}
-# Look at MSPE for linear models
-pred_let <- predict(q3_let, newdata = sesame)
-mean((sesame$difflet - pred_let)^2)
-
-pred_numb <- predict(q3_numb, newdata = sesame)
-mean((sesame$diffnumb - pred_numb)^2)
-```
-
-
-```{r}
-# Check model conditions for linear
-plot(q3_let)
-plot(q3_numb)
-```
-
-
-```{r}
 library(tree)
 library(MASS)
 ```
@@ -389,7 +345,7 @@ library(MASS)
 ```{r }
 set.seed(4)
 train <- sample(1:nrow(sesame), nrow(sesame)/2) 
-tree.letters <- tree(difflet ~ site + viewcat + age + sex, sesame, subset = train)
+tree.letters <- tree(difflet ~ site + viewcat, sesame, subset = train)
 summary(tree.letters)
 plot(tree.letters)
 text(tree.letters, pretty = 0)
@@ -406,14 +362,7 @@ Based off of this, the CV shows that the best tree is one with 4 nodes. I made t
 prune.letters <- prune.tree(tree.letters, best = 4)
 summary(prune.letters)
 plot(prune.letters)
-title(main = "Prediction Tree of Letter Test Score Improvement")
 text(prune.letters, pretty = 0)
-
-
-yhat <- predict(prune.letters, newdata = sesame[-train,])
-letter.test <- sesame[-train, "difflet"]
-#plot(yhat, letter.test)
-#abline(0,1)
 ```
 
 
@@ -424,7 +373,6 @@ train <- sample(1:nrow(sesame), nrow(sesame)/2)
 tree.nums <- tree(diffnumb ~ site + viewcat, sesame, subset = train)
 summary(tree.nums)
 plot(tree.nums)
-title(main ="Prediction Tree of Number Test Score Improvement")
 text(tree.nums, pretty = 0)
 ```
 
@@ -432,25 +380,14 @@ text(tree.nums, pretty = 0)
 cv.numbers <- cv.tree(tree.nums)
 plot(cv.numbers$size, cv.numbers$dev, type = "b")
 ```
-Here, the optimal nodes determined by cross validation is 4.
+Here, the optimal nodes determined by cross validation is 2.
 
 ```{r}
-prune.numbers <- prune.tree(tree.nums, best = 4)
+prune.numbers <- prune.tree(tree.nums, best = 2)
 summary(prune.numbers)
 plot(prune.numbers)
-title(main = "Prediction Tree of Number Test Score Improvement")
 text(prune.numbers, pretty = 0)
 ```
-
-```{r}
-yhat <- predict(prune.numbers, newdata = sesame[-train,])
-num.test <- sesame[-train, "diffnumb"]
-testing <- lst(num.test)
-#plot(yhat, testing)
-#abline(0,1)
-```
-
-
 
 Ok so I fit the two trees above with site (which is the level of how economically 
 disadvantaged the children are) and viewcat (which is how frequently they watch
@@ -522,7 +459,6 @@ mean((yhat.boost.numb - sesame.test$diffnumb)^2)
 ```
 
 
-
 ```{r}
 #In the lab I was looking at it just did not explain why the degrees of freedom were chosen, but I did n+1 for the number of groups that there were?? But maybe that's not the right way to approach it
 #There are 5 sites and 4 viewcats
@@ -536,70 +472,5 @@ library(gam)
 #Error in (1 - h) * qs[i] : non-numeric argument to binary operator
 ```
 
-Some more EDA stuff...
 
-```{r}
-ggplot(sesame, aes(x = difflet)) + geom_histogram() + theme_bw() + labs(title = "Distribution of Letter Test Score Improvement", x = "Score Improvement from Pre to Post Test", y = "Count")
-ggplot(sesame, aes(x = diffnumb)) + geom_histogram() + theme_bw() + labs(title = "Distribution of Number Test Score Improvement", x = "Score Improvement from Pre to Post Test", y = "Count")
-```
-
-
-Question 1 - Lasso Selection:
-
-```{r}
-head(sesame)
-```
-
-```{r}
-myvars <- c("site", "sex", "age", "viewcat", "setting", "viewenc", "prelet", "difflet")
-let_lasso_data <- sesame[myvars]
-head(let_lasso_data)
-```
-
-
-```{r}
-library(glmnet)
-
-x <- model.matrix (difflet~.,let_lasso_data)[,-1]
-y <- let_lasso_data$difflet
-
-#perform k-fold cross-validation to find optimal lambda value
-cv_model <- cv.glmnet(x, y, alpha = 1)
-
-#find optimal lambda value that minimizes test MSE
-best_lambda <- cv_model$lambda.min
-best_lambda
-
-#produce plot of test MSE by lambda value
-plot(cv_model) 
-
-#get coefs of best model
-best_model <- glmnet(x, y, alpha = 1, lambda = best_lambda)
-coef(best_model)
-```
-
-```{r}
-myvars2 <- c("site", "sex", "age", "viewcat", "setting", "viewenc", "prenumb", "diffnumb")
-numb_lasso_data <- sesame[myvars2]
-head(numb_lasso_data)
-```
-
-```{r}
-x2 <- model.matrix (diffnumb~.,numb_lasso_data)[,-1]
-y2 <- numb_lasso_data$diffnumb
-
-#perform k-fold cross-validation to find optimal lambda value
-cv_model <- cv.glmnet(x, y, alpha = 1)
-
-#find optimal lambda value that minimizes test MSE
-best_lambda <- cv_model$lambda.min
-best_lambda
-
-#produce plot of test MSE by lambda value
-plot(cv_model) 
-
-#get coefs of best model
-best_model <- glmnet(x, y, alpha = 1, lambda = best_lambda)
-coef(best_model)
-```
 
