@@ -141,8 +141,8 @@ summary(lm_clasf_reg)
 
 #Is there anything else we have to do to show that sesame street generally was associated with increased learning, at least in these two categories?
 
-lm_let <- lm(difflet ~ viewcat + sex + age + setting + + prelet + site, data = sesame)
-lm_numb <- lm(diffnumb ~ viewcat + sex + age + setting + + prenumb + site, data = sesame)
+lm_let <- lm(difflet ~ viewcat + sex + age + setting + + prelet + site + viewenc, data = sesame)
+lm_numb <- lm(diffnumb ~ viewcat + sex + age + setting + + prenumb + site + viewenc, data = sesame)
 
 summary(lm_let)
 summary(lm_numb)
@@ -551,7 +551,7 @@ head(sesame)
 ```
 
 ```{r}
-myvars <- c("site", "sex", "age", "viewcat", "setting", "viewenc", "regular", "difflet")
+myvars <- c("site", "sex", "age", "viewcat", "setting", "viewenc", "prelet", "difflet")
 let_lasso_data <- sesame[myvars]
 head(let_lasso_data)
 ```
@@ -579,7 +579,7 @@ coef(best_model)
 ```
 
 ```{r}
-myvars2 <- c("site", "sex", "age", "viewcat", "setting", "viewenc", "regular", "diffnumb")
+myvars2 <- c("site", "sex", "age", "viewcat", "setting", "viewenc", "prenumb", "diffnumb")
 numb_lasso_data <- sesame[myvars2]
 head(numb_lasso_data)
 ```
