@@ -357,6 +357,33 @@ difflet and diffnum based off of the demogrpahic characteristics and how much th
 watch the program.
 
 ```{r}
+# Check basic linear models for prediction accuracy
+q3_let <- lm(difflet ~ viewcat + site, data = sesame)
+q3_numb <- lm(diffnumb ~ viewcat + site, data = sesame)
+summary(q3_let)
+summary(q3_numb)
+```
+
+```{r}
+# Look at MSPE for linear models
+pred_let <- predict(q3_let, newdata = sesame)
+mean((sesame$difflet - pred_let)^2)
+
+pred_numb <- predict(q3_numb, newdata = sesame)
+mean((sesame$diffnumb - pred_numb)^2)
+```
+
+
+```{r}
+# Check model conditions for linear
+plot(q3_let)
+plot(q3_numb)
+```
+
+
+
+
+```{r}
 library(tree)
 library(MASS)
 ```
