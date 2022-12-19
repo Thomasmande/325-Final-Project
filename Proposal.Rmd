@@ -344,7 +344,7 @@ library(MASS)
 
 ```{r }
 set.seed(4)
-train <- sample(1:nrow(sesame), nrow(sesame)/2) 
+train <- sample(1:nrow(sesame), nrow(sesame)*.7) 
 tree.letters <- tree(difflet ~ site + viewcat, sesame, subset = train)
 summary(tree.letters)
 plot(tree.letters)
@@ -359,10 +359,12 @@ plot(cv.letters$size, cv.letters$dev, type = "b")
 Based off of this, the CV shows that the best tree is one with 4 nodes. I made that tree below...
 
 ```{r pruned-letters}
-prune.letters <- prune.tree(tree.letters, best = 4)
-summary(prune.letters)
-plot(prune.letters)
-text(prune.letters, pretty = 0)
+#prune.letters <- prune.tree(tree.letters, best = 5)
+#summary(prune.letters)
+#plot(prune.letters)
+#text(prune.letters, pretty = 0)
+#yhat.tree.let <- predict(prune.letters, newdata = sesame.test)
+#mean((yhat.tree.let - sesame.test$diffnumb)^2)
 ```
 
 
@@ -430,31 +432,42 @@ mean((yhat.numb - sesame.test$diffnumb)^2)
 # Check basic linear models for prediction accuracy
 q3_let <- lm(difflet ~ viewcat + site + sex + age + setting + viewenc + prelet, data = sesame, subset = train)
 q3_numb <- lm(diffnumb ~ viewcat + site + sex + age + setting + viewenc + prenumb, data = sesame, subset = train)
+summary(q3_let)
+summary(q3_numb)
 ```
 
 ```{r}
 # Look at MSPE for linear models
 pred_let <- predict(q3_let, newdata = sesame.test)
 mean((pred_let - sesame.test$difflet)^2)
+plot(pred_let, sesame.test$difflet)
+abline(0,1)
 
 pred_numb <- predict(q3_numb, newdata = sesame.test)
 mean((pred_numb - sesame.test$diffnumb)^2)
+plot(pred_numb, sesame.test$diffnumb)
+abline(0,1)
 ```
 
 
 ```{r}
 library(gbm)
+set.seed(2)
 boost.sesame.let <- gbm(difflet ~ site + sex + age + viewcat + setting + viewenc + prelet, data =
                       sesame[train,], distribution = "gaussian", n.trees = 5000,
-                      interaction.depth = 3)
+                      interaction.depth = 4)
 yhat.boost.let <- predict(boost.sesame.let, newdata = sesame.test, n.trees = 5000)
+plot(yhat.boost.let, sesame.test$diffnumb)
+abline(0,1)
 mean((yhat.boost.let - sesame.test$difflet)^2)
 
 
 boost.sesame.numb <- gbm(diffnumb ~ site + sex + age + viewcat + setting + viewenc + prenumb,
                          data= sesame[train,], distribution = "gaussian", n.trees = 5000,
-                      interaction.depth = 3)
+                      interaction.depth = 4)
 yhat.boost.numb <- predict(boost.sesame.numb, newdata = sesame.test, n.trees = 5000)
+plot(yhat.boost.numb, sesame.test$diffnumb)
+abline(0,1)
 mean((yhat.boost.numb - sesame.test$diffnumb)^2)
 ```
 
